@@ -31,6 +31,9 @@ module.exports = {
       'secondary':{
         100:'#57ddff',
         200:'#c058f3'
+      },
+      'bright':{
+        100:'hsl(220, 98%, 61%)'
       }
 
     },
