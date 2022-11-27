@@ -1,0 +1,35 @@
+{   "status": "active"
+    }
+  ]
+  "tasks":[
+    {
+      "id": 1,
+      "name": "Complete frontend task",
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "name": "Complete frontend task",
+      "status": "active"
+    },
+    {
+      "id": 3,
+      "name": "Read for 1 hour",
+      "status": "complete"
+    },
+    {
+      "id": 4,
+      "name": "10 Minutes Meditation",
+      "status": "complete"
+    },
+    {
+      "id": 5,
+      "name": "Pick up Groceries",
+      "status": "active"
+    },
+    {
+      "id": 6,
+      "name": "Don't forget to cook dinner",
+   
+}
+
