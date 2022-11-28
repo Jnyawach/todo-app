@@ -114,7 +114,7 @@ const onDrop=(event,level)=>{
   <main>
     <div>
       <div class="py-3 flex place-content-center  px-4" :class="isDark?'header-dark':'header-light'">
-        <div class="sm:w-3/4 md:w-2/4 lg:w-2/6">
+        <div class="w-full md:w-2/4 lg:w-2/6">
           <div class="flex justify-between w-full py-8 lg:py-14">
             <h1 class="text-white font-bold text-3xl tracking-widest">TODO</h1>
             <button type="button" @click="toggleDark()" class="transition-all text-white text-xl">
@@ -143,7 +143,7 @@ const onDrop=(event,level)=>{
           <!---Available tasks-->
           <div class="bg-gray-50 w-full rounded-lg mt-5 divide-y dark:bg-blue-500 dark:divide-blue-400 shadow-xl">
             
-              <div v-for="task in tasks" class="flex p-4 gap-5 w-full" :key="task.id" draggable="true" 
+              <div v-for="task in tasks" class="flex p-4 gap-3 w-full" :key="task.id" draggable="true" 
               @dragstart="startDrag($event, task)" @drop="onDrop($event,1)" @dragenter.prevent @dragover.prevent>
               
               <div class="place-content-center">
@@ -225,7 +225,7 @@ const onDrop=(event,level)=>{
 <style scoped>
 .header-light{
   min-height: 100vh;
-  background: linear-gradient(0deg, #d2d3db 78%, rgba(0, 0, 0, 0) 22%), url('/images/bg-desktop-light.jpg');
+  background: linear-gradient(0deg, #d2d3db 82%, rgba(0, 0, 0, 0) 18%), url('/images/bg-desktop-light.jpg');
   background-repeat: no-repeat;
 }
 
@@ -239,15 +239,15 @@ Media withs
 */
 @media only screen and (max-width: 375px){
 .header-light{
-  background: linear-gradient(0deg, #d2d3db 75%, rgba(0, 0, 0, 0) 25%), url('/images/bg-mobile-light.jpg');
+  background: linear-gradient(0deg, #d2d3db 76%, rgba(0, 0, 0, 0) 24%), url('/images/bg-mobile-light.jpg');
   background-repeat: no-repeat;
-  background-size: cover;
+  
 
 }
   .header-dark{
-    background: linear-gradient(0deg, #d2d3db 75%, rgba(0, 0, 0, 0) 25%), url('/images/bg-mobile-dark.jpg');
+    background: linear-gradient(0deg, #d2d3db 76%, rgba(0, 0, 0, 0) 24%), url('/images/bg-mobile-dark.jpg');
     background-repeat: no-repeat;
-    background-size: cover;
+    
 
   }
 }
