@@ -11,7 +11,7 @@ const tasks=ref(null)
 const error=ref(null)
 const sort=ref('')
 const tasksNew=ref(tasks)
-const base_url='http://127.0.0.1:8000/api/todos'
+const base_url='https://kolasport.com/api/todos'
 
 //create new to do list
 const addTask=ref('')
@@ -30,6 +30,7 @@ watch(addTask, ()=>{
       status:'active'
     })
         .then(function (response) {
+         // console.log(response)
           tasks.value=response.data.tasks;
           newTask.value='';
           addTask.value='';
@@ -197,7 +198,7 @@ const onEnd=(evt)=>{
             <div class="flex justify-between p-3 todo-footer">
             
               <div class="self-center">
-                <p class="text-sm font-semibold text-gray-300 dark:text-gray-400">10 items left</p>
+                <p class="text-sm font-semibold text-gray-300 dark:text-gray-400">{{tasks.length}} items left</p>
               </div>
               <div class="gap-2 hidden md:flex ">
                 <div>
