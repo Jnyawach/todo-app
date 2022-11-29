@@ -1,13 +1,16 @@
 <script setup lang="ts">
+import { trackSlotScopes } from "@vue/compiler-core";
 import { useDark,useToggle } from "@vueuse/core";
 import axios from "axios";
 import {ref, watch} from "vue";
+import { VueDraggableNext as draggable } from 'vue-draggable-next'
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 const newTask=ref('')
 const tasks=ref(null)
 const error=ref(null)
 const sort=ref('')
+const tasksNew=ref(tasks)
 const base_url='http://127.0.0.1:8000/api/todos'
 
 //create new to do list
@@ -106,6 +109,26 @@ const onDrop=(event,level)=>{
   task.id=level
 }
 
+//drag and drop
+const oldIndex=ref('')
+const newIndex=ref('')
+const onEnd=(evt)=>{
+   // console.log(evt)
+    oldIndex.value=evt.oldIndex;
+    newIndex.value=evt.newIndex;
+    tasksNew.value.map((task, index)=>{
+        task.order=index+1
+      
+    })
+   // console.log(tasksNew.value)
+    axios.post(base_url+'/updateAll',{
+      tasks:tasksNew.value
+    })
+    .then(function(response){
+   
+  //console.log(response)
+  })
+}
 
 </script>
 
@@ -141,10 +164,10 @@ const onDrop=(event,level)=>{
             </div>
           </div>
           <!---Available tasks-->
-          <div class="bg-gray-50 w-full rounded-lg mt-5 divide-y dark:bg-blue-500 dark:divide-blue-400 shadow-xl">
-            
-              <div v-for="task in tasks" class="flex p-4 gap-3 w-full" :key="task.id" draggable="true" 
-              @dragstart="startDrag($event, task)" @drop="onDrop($event,1)" @dragenter.prevent @dragover.prevent>
+          <div class="bg-gray-50 w-full rounded-lg divide-y mt-5 dark:bg-blue-500 dark:divide-blue-400 shadow-xl">
+            <draggable v-model="tasks" ghost-class="ghost" @end="onEnd" class="divide-y dark:divide-blue-400">
+              <transition-group type="transition" name="flip-list">
+              <div v-for="task in tasks" class="cursor-move flex p-4 gap-3 w-full mainList" :key="task.id">
               
               <div class="place-content-center">
                 <div  class="border-2 border-gray-300 dark:border-blue-300 rounded-full flex h-5
@@ -162,14 +185,15 @@ const onDrop=(event,level)=>{
                 <p class="text-gray-400 text-sm md:text-base dark:text-gray-300 self-center" :class="task.status=='complete'?'line-through':''">{{task.name}}</p>
                 </div>
                <!--delete task-->
-                <div class="place-content-center self-center text-end ">
+                <div class="place-content-center self-center text-end md:hidden clearList h-5">
                   <button class="text-lg dark:text-gray-300 text-gray-400 " @click="deleteTodo(task.id)">
                   <span><i class="fa-light fa-xmark"></i></span>
                    </button>
                </div>
               </div>
               </div>
-   
+              </transition-group>
+            </draggable>
             <div class="flex justify-between p-3 todo-footer">
             
               <div class="self-center">
@@ -250,6 +274,16 @@ Media withs
     
 
   }
+}
+
+.ghost{
+   box-shadow: 0px 5px 5px -1px rgba(0,0,0,0.14);
+}
+.flip-list-move{
+    transition: transform 0.5s;
+}
+.mainList:hover .clearList{
+   display: flex;
 }
 
 
