@@ -81,7 +81,7 @@ const{onEnd,oldIndex,newIndex}=useDrag(base_url,tasks)
             <div class="flex justify-between p-3 todo-footer">
             
               <div class="self-center">
-                <p class="text-sm font-semibold text-gray-300 dark:text-gray-400">10 items left</p>
+                <p class="text-sm font-semibold text-gray-300 dark:text-gray-400">{{tasks['length']}} items left</p>
               </div>
               <div class="gap-2 hidden md:flex ">
                 <div>
