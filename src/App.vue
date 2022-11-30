@@ -1,142 +1,25 @@
 <script setup lang="ts">
-import { trackSlotScopes } from "@vue/compiler-core";
 import { useDark,useToggle } from "@vueuse/core";
-import axios from "axios";
-import {ref, watch} from "vue";
 import { VueDraggableNext as draggable } from 'vue-draggable-next'
+import { useTask } from "./use/useTask";
+import { useDrag} from "./use/useDrag";
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
-const newTask=ref('')
-const tasks=ref(null)
-const error=ref(null)
-const sort=ref('')
-const tasksNew=ref(tasks)
 const base_url='https://kolasport.com/api/todos'
 
-//create new to do list
-const addTask=ref('')
-axios.get(base_url)
-    .then(function (response) {
-      // handle success
-      tasks.value=response.data.tasks;
-      
-    })
-//create new row
-watch(addTask, ()=>{
-  if (addTask.value){
-    let currentDate=new Date().getTime()
-    axios.post(base_url, {
-      name:newTask.value,
-      status:'active'
-    })
-        .then(function (response) {
-         // console.log(response)
-          tasks.value=response.data.tasks;
-          newTask.value='';
-          addTask.value='';
 
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+const{newTask,addTask, tasks, deleteTodo,markComplete,clearComplete, sort}=useTask(base_url)
 
-  }
-})
-//sort to do list
-watch(sort, ()=>{
-  axios.get(base_url,{
-    params:{
-      sort:sort.value
-    }
-  })
-  .then(function (response) {
-      // handle success
-      //console.log(sort)
-      tasks.value=response.data.tasks;
-     
-    })
-})
-
-//delete a todo list
-
-let deleteTodo=(id)=>{
-  axios.delete(base_url+'/'+id)
-  .then(function(response){
-    tasks.value=response.data.tasks;
-   // console.log(response)
-  })
-  .catch(function (error) {
-          console.log(error);
-        });
-}
-
-//clear all completed tasks
-const clearComplete=()=>{
-  axios.get(base_url+'/clearComplete')
-  .then(function(response){
-    console.log(response)
-    tasks.value=response.data.tasks;
-   
-  })
-  .catch(function (error) {
-          console.log(error);
-        });
-}
-
-//mark a todo as complete
-const markComplete=(id)=>{
-  
-  axios.patch(base_url+'/'+id)
-  .then(function(response){
-    tasks.value=response.data.tasks;
-    console.log(response)
-  })
-  .catch(function (error) {
-          console.log(error);
-        });
-}
-
-//draging
-const startDrag=(event, task)=>{
-  console.log(task)
-  event.dataTransfer.dropEffect='move'
-  event.dataTransfer.dropAllowed='move'
-  event.dataTransfer.setData('taskId',task.id)
-}
-
-const onDrop=(event,level)=>{
-  const taskId=event.dataTransfer.getData('taskId')
-  const task=tasks.value.find((task)=>task.id==taskId)
-  task.id=level
-}
 
 //drag and drop
-const oldIndex=ref('')
-const newIndex=ref('')
-const onEnd=(evt)=>{
-   // console.log(evt)
-    oldIndex.value=evt.oldIndex;
-    newIndex.value=evt.newIndex;
-    tasksNew.value.map((task, index)=>{
-        task.order=index+1
-      
-    })
-   // console.log(tasksNew.value)
-    axios.post(base_url+'/updateAll',{
-      tasks:tasksNew.value
-    })
-    .then(function(response){
-   
-  //console.log(response)
-  })
-}
+const{onEnd,oldIndex,newIndex}=useDrag(base_url,tasks)
 
 </script>
 
 <template>
   
-  <main>
-    <div>
+  <main class="h-screen">
+   
       <div class="py-3 flex place-content-center  px-4" :class="isDark?'header-dark':'header-light'">
         <div class="w-full md:w-2/4 lg:w-2/6">
           <div class="flex justify-between w-full py-8 lg:py-14">
@@ -168,13 +51,13 @@ const onEnd=(evt)=>{
           <div class="bg-gray-50 w-full rounded-lg divide-y mt-5 dark:bg-blue-500 dark:divide-blue-400 shadow-xl">
             <draggable v-model="tasks" ghost-class="ghost" @end="onEnd" class="divide-y dark:divide-blue-400">
               <transition-group type="transition" name="flip-list">
-              <div v-for="task in tasks" class="cursor-move flex p-4 gap-3 w-full mainList" :key="task.id">
+              <div v-for="task in tasks" class="cursor-move flex p-4 gap-3 w-full mainList" :key="task['id']">
               
               <div class="place-content-center">
                 <div  class="border-2 border-gray-300 dark:border-blue-300 rounded-full flex h-5
-                  w-5 place-content-center  cursor-pointer" :class="task.status=='complete'?'border-0 bg-gradient-to-r from-secondary-100 to-secondary-200':''"
-                   @click="markComplete(task.id)">        
-                      <span class=" text-white text-sm self-center" :class="task.status=='complete'?'flex':'hidden'">
+                  w-5 place-content-center  cursor-pointer" :class="task['status']=='complete'?'border-0 bg-gradient-to-r from-secondary-100 to-secondary-200':''"
+                   @click="markComplete(task['id'])">        
+                      <span class=" text-white text-sm self-center" :class="task['status']=='complete'?'flex':'hidden'">
                         <i class="fas fa-check"></i>
                         </span>
                       
@@ -183,11 +66,11 @@ const onEnd=(evt)=>{
               </div>
               <div class="flex justify-between w-full">
                 <div class="place-content-center w-full self-center">
-                <p class="text-gray-400 text-sm md:text-base dark:text-gray-300 self-center" :class="task.status=='complete'?'line-through':''">{{task.name}}</p>
+                <p class="text-gray-400 text-sm md:text-base dark:text-gray-300 self-center" :class="task['status']=='complete'?'line-through':''">{{task['name']}}</p>
                 </div>
                <!--delete task-->
                 <div class="place-content-center self-center text-end md:hidden clearList h-5">
-                  <button class="text-lg dark:text-gray-300 text-gray-400 " @click="deleteTodo(task.id)">
+                  <button class="text-lg dark:text-gray-300 text-gray-400 " @click="deleteTodo(task['id'])">
                   <span><i class="fa-light fa-xmark"></i></span>
                    </button>
                </div>
@@ -198,7 +81,7 @@ const onEnd=(evt)=>{
             <div class="flex justify-between p-3 todo-footer">
             
               <div class="self-center">
-                <p class="text-sm font-semibold text-gray-300 dark:text-gray-400">{{tasks.length}} items left</p>
+                <p class="text-sm font-semibold text-gray-300 dark:text-gray-400">10 items left</p>
               </div>
               <div class="gap-2 hidden md:flex ">
                 <div>
@@ -244,34 +127,40 @@ const onEnd=(evt)=>{
 
         </div>
       </div>
-    </div>
+    
   </main>
 </template>
 <style scoped>
 .header-light{
-  min-height: 100vh;
-  background: linear-gradient(0deg, #d2d3db 82%, rgba(0, 0, 0, 0) 18%), url('/images/bg-desktop-light.jpg');
+  height: 100vh;
+  background: linear-gradient(0deg, #d2d3db 70%, rgba(0, 0, 0, 0) 30%), url('/images/bg-desktop-light.jpg');
   background-repeat: no-repeat;
+ 
 }
 
 .header-dark{
-  min-height: 100vh;
-  background: linear-gradient(0deg, #161722 78%, rgba(0, 0, 0, 0) 22%), url('/images/bg-desktop-dark.jpg');
+  height: 100vh;
+  background: linear-gradient(0deg, #161722 70%, rgba(0, 0, 0, 0) 30%), url('/images/bg-desktop-dark.jpg');
   background-repeat: no-repeat;
+  
 }
 /*
 Media withs
 */
 @media only screen and (max-width: 375px){
 .header-light{
-  background: linear-gradient(0deg, #d2d3db 76%, rgba(0, 0, 0, 0) 24%), url('/images/bg-mobile-light.jpg');
+  
+  background: linear-gradient(0deg, #d2d3db 55%, rgba(0, 0, 0, 0) 45%), url('/images/bg-mobile-light.jpg');
   background-repeat: no-repeat;
+  
   
 
 }
   .header-dark{
-    background: linear-gradient(0deg, #d2d3db 76%, rgba(0, 0, 0, 0) 24%), url('/images/bg-mobile-dark.jpg');
+    
+    background: linear-gradient(0deg, #d2d3db 55%, rgba(0, 0, 0, 0) 45%), url('/images/bg-mobile-dark.jpg');
     background-repeat: no-repeat;
+    
     
 
   }
